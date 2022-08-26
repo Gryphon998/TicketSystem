@@ -1,5 +1,6 @@
 package org.lalala.ticketsystem.bean;
 
+/* This is a father class for Merchant and Customer */
 public class User {
     public enum AcctType {
         business,  individual;
