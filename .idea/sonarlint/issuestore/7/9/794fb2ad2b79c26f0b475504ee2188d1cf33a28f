@@ -1,0 +1,17 @@
+
+=
+java:S2189""Add an end condition to this loop.(˜ïˆÿÿÿÿÿ
+j
+java:S3008"TRename this field "ALL_USERS" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Æü°
+t
+java:S3008"YRename this field "ALL_MOVIE_LIST" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÏÜŠ½ûÿÿÿÿ
+S	java:S106"9Replace this use of System.out or System.err by a logger.(‡…æÄıÿÿÿÿ
+N	java:S106"9Replace this use of System.out or System.err by a logger.(ûŒ¹°
+S	java:S106"9Replace this use of System.out or System.err by a logger.(²Â›Áøÿÿÿÿ
+S	java:S106"9Replace this use of System.out or System.err by a logger.(Ò‡¸ìøÿÿÿÿ
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ê«Åøÿÿÿÿ
+S	java:S106,"9Replace this use of System.out or System.err by a logger.(ÄÆí şÿÿÿÿ
+C
+java:S1068"-Remove this unused "ALL_USERS" private field.(Æü°
+M
+java:S1068"2Remove this unused "ALL_MOVIE_LIST" private field.(ÏÜŠ½ûÿÿÿÿ
