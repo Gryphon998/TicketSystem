@@ -5,29 +5,32 @@ import org.lalala.ticketsystem.bean.Merchant;
 import org.lalala.ticketsystem.bean.Movie;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class CustomerOperation {
-    public static void customerMainPage() {
+    private static final Scanner SC = new Scanner(System.in);
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+    public static void customerMainPage(Map<Merchant, ArrayList<Movie>> allMovieList) {
         while (true) {
             System.out.println("Hello" + TicketSystem.loginUser.getUserName() + " please select your option");
-            System.out.println("Please select your option：");
-            System.out.println("1. Show all movies");
-            System.out.println("2. Score system");
-            System.out.println("3. Buying tickets");
-            System.out.println("4. Logging out");
-            String command = TicketSystem.SC.nextLine();
+            System.out.println("Please select your option：\n" + "1. Show all movies\n" + "2. Score system\n" +
+                    "3. Buying tickets\n" + "4. Logging out");
+            String command = SC.nextLine();
 
-            switch (command){
+            switch (command) {
                 case "1":
-                    showAllMovies();
+                    showAllMovies(allMovieList);
                     break;
                 case "2":
                     movieScoreSystem();
                     break;
                 case "3":
-                    ticketingSystem();
+                    ticketingSystem(allMovieList);
                     break;
                 case "4":
                     return;
@@ -38,16 +41,16 @@ public class CustomerOperation {
         }
     }
 
-    private static void showAllMovies() {
+    private static void showAllMovies(Map<Merchant, ArrayList<Movie>> allMovieList) {
         System.out.println("Movie on the list");
-        TicketSystem.ALL_MOVIE_LIST.forEach((merchant, movies) -> {
+        allMovieList.forEach((merchant, movies) -> {
             System.out.println(merchant.getMerchantName() + "\t\tcontact number：" + merchant.getPhone() +
                     "\t\taddress: " + merchant.getAddress());
             System.out.println("name\t\t\tactor\t\ttime\t\tscore\t\tprice\t\tremaining tickets\t\tstarting time");
             for (Movie movie : movies) {
                 System.out.println(movie.getName()+"\t\t\t" + movie.getStarring()+ "\t\t" + movie.getTime()
                         + "\t\t" + movie.getScore() + "\t\t" + movie.getMoviePrice() + "\t\t"
-                        + movie.getRemainingTickets() + "\t\t" + TicketSystem.sdf.format(movie.getStartTime()));
+                        + movie.getRemainingTickets() + "\t\t" + sdf.format(movie.getStartTime()));
             }
         });
     }
@@ -56,46 +59,55 @@ public class CustomerOperation {
         Customer customer = (Customer) TicketSystem.loginUser;
         Map<Movie, Boolean> movies = customer.getPurchasedMovie();
 
-        if(movies.size() == 0 ){
+        if(movies.size() == 0 ) {
             System.out.println("You can not rate movies, yo haven't watch any movie yet :(");
             return;
         }
+
         movies.forEach((movie, flag) -> {
+
             if(flag){
                 System.out.println(movie.getName() +"you have already rate the movie");
             } else {
                 System.out.println("Please rate：" + movie.getName() +"（0-10）：");
-                double score = Double.valueOf(TicketSystem.SC.nextLine());
-                movie.setScore((movie.getScore() + score) / 2);
+                double score = Double.valueOf(SC.nextLine());
+                double latestScore = movie.getScore();
+
+                if (latestScore == 0) {
+                    movie.setScore(score);
+                } else {
+                    movie.setScore((latestScore + score) / 2);
+                }
+
                 movies.put(movie, true);
             }
         });
     }
 
-    private static void ticketingSystem() {
-        showAllMovies();
+    private static void ticketingSystem(Map<Merchant, ArrayList<Movie>> allMovieList) {
+        showAllMovies(allMovieList);
         System.out.println("Ticketing System");
 
         while (true) {
             System.out.println("Please enter the merchant name：");
-            String shopName = TicketSystem.SC.nextLine();
-            Merchant merchant = Helper.getMerchantByShopName(shopName);
+            String shopName = SC.nextLine();
+            Merchant merchant = Helper.getMerchantByShopName(shopName, allMovieList);
 
             if(merchant == null){
                 System.out.println("System can't find the merchant you enter, please check");
             } else {
-                List<Movie> movies = TicketSystem.ALL_MOVIE_LIST.get(merchant);
+                List<Movie> movies = allMovieList.get(merchant);
 
                 if(movies.size() > 0) {
                     while (true) {
                         System.out.println("PLease enter the movie name you want to buy");
-                        String movieName = TicketSystem.SC.nextLine();
-                        Movie movie = Helper.getMovieByShopAndName(merchant, movieName);
+                        String movieName = SC.nextLine();
+                        Movie movie = Helper.getMovieByShopAndName(merchant, movieName, allMovieList);
 
                         if(movie != null){
                             while (true) {
                                 System.out.println("Please enter the ticket number：");
-                                String number = TicketSystem.SC.nextLine();
+                                String number = SC.nextLine();
                                 int buyNumber = Integer.valueOf(number);
 
                                 if(movie.getRemainingTickets() >= buyNumber){
@@ -115,26 +127,14 @@ public class CustomerOperation {
                                     } else {
                                         System.out.println("Your account balance is not enough");
                                         System.out.println("Stay in this page? y/n");
-                                        String command = TicketSystem.SC.nextLine();
-                                        switch (command) {
-                                            case "y":
-                                                break;
-                                            default:
-                                                System.out.println("Sure！");
-                                                return;
-                                        }
+                                        String command = SC.nextLine();
+                                        Helper.userChoice(command);
                                     }
                                 } else {
                                     System.out.println("The remaining ticket number is ：" + movie.getRemainingTickets());
                                     System.out.println("Do you still want to buy？y/n");
-                                    String command = TicketSystem.SC.nextLine();
-                                    switch (command) {
-                                        case "y":
-                                            break;
-                                        default:
-                                            System.out.println("Sure！");
-                                            return;
-                                    }
+                                    String command = SC.nextLine();
+                                    Helper.userChoice(command);
                                 }
                             }
                         }else {
@@ -144,15 +144,8 @@ public class CustomerOperation {
                 }else {
                     System.out.println("This merchant has no movie in the show");
                     System.out.println("Stay in this page? y/n");
-                    String command = TicketSystem.SC.nextLine();
-
-                    switch (command) {
-                        case "y":
-                            break;
-                        default:
-                            System.out.println("Sure！");
-                            return;
-                    }
+                    String command = SC.nextLine();
+                    Helper.userChoice(command);
                 }
             }
         }
